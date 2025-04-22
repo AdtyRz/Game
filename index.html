@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game Memory</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            height: 100vh;
+            background-color: #590d7c;
+            color: white;
+        }
+        h1 {
+            margin-bottom: 20px;
+        }
+        .game-board {
+            display: grid;
+            grid-template-columns: repeat(4, 100px);
+            gap: 10px;
+        }
+        .card {
+            width: 100px;
+            height: 100px;
+            background-color: #320b64;
+            border: 2px solid #ffffff;
+            border-radius: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 2em;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .card.flipped {
+            background-color: #4CAF50;
+            color: white;
+        }
+        .info {
+            margin-bottom: 20px;
+        }
+        .buttons {
+            margin: 20px 0;
+        }
+        button {
+            margin: 0 10px;
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #7006a1;
+            border: none;
+            border-radius: 3px;
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #4f0574;
+        }
+        .popup {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            z-index: 1000;
+        }
+        .particle {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background-color: #fbff00;
+            border-radius: 50%;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Game Memory</h1>
+<div class="info">
+    <div>Waktu : <span id="timer">0</span> detik</div>
+    <div>Kartu Dibuka : <span id="cardsOpened">0</span></div>
+</div>
+<div class="game-board" id="gameBoard"></div>
+<div class="buttons">
+    <button id="playButton">Play</button>
+    <button id="pauseButton">Pause</button>
+    <button id="resetButton">Reset</button>
+</div>
+<a href="https://wa.me/6283120658571?text=ngebug ganih?,open request juga yaa :0" class="tombol-whatsapp">
+    <i class="fab fa-whatsapp ikon"></i>Hubungi Pembuat :)</a>
+
+<div class="popup" id="popup">Selamat! Anda menang!</div>
+
+<script>
+    const emojis = ['🐶', '🐱', '🐰', '🐻', '🐼', '🐸', '🦁', '🐨'];
+    let cardArray = [];
+    let firstCard = null;
+    let secondCard = null;
+    let lockBoard = false;
+    let cardsOpenedCount = 0;
+    let timer = 0;
+    let timerInterval;
+
+    const gameBoard = document.getElementById('gameBoard');
+    const timerDisplay = document.getElementById('timer');
+    const cardsOpenedDisplay = document.getElementById('cardsOpened');
+    const playButton = document.getElementById('playButton');
+    const pauseButton = document.getElementById('pauseButton');
+    const resetButton = document.getElementById('resetButton');
+    const popup = document.getElementById('popup');
+
+    function initializeGame() {
+        cardArray = [...emojis, ...emojis];
+        cardArray.sort(() => 0.5 - Math.random());
+        gameBoard.innerHTML = '';
+        cardsOpenedCount = 0;
+        timer = 0;
+        timerDisplay.textContent = timer;
+        cardsOpenedDisplay.textContent = cardsOpenedCount;
+        clearInterval(timerInterval);
+        resetBoard();
+        
+        cardArray.forEach((emoji) => {
+            const card = document.createElement('div');
+            card.classList.add('card');
+            card.dataset.emoji = emoji;
+            card.addEventListener('click', flipCard);
+            gameBoard.appendChild(card);
+        });
+    }
+
+    function startTimer() {
+        timerInterval = setInterval(() => {
+            timer++;
+            timerDisplay.textContent = timer;
+        }, 1000);
+    }
+
+    function flipCard() {
+        if (lockBoard || this === firstCard) return;
+
+        this.classList.add('flipped');
+        this.textContent = this.dataset.emoji;
+        cardsOpenedCount++;
+        cardsOpenedDisplay.textContent = cardsOpenedCount;
+
+        if (!firstCard) {
+            firstCard = this;
+            if (cardsOpenedCount === 1) {
+                startTimer();
+            }
+            return;
+        }
+
+        secondCard = this;
+        lockBoard = true;
+
+        checkForMatch();
+    }
+
+    function checkForMatch() {
+        const isMatch = firstCard.dataset.emoji === secondCard.dataset.emoji;
+
+        if (isMatch) {
+            disableCards();
+            if (document.querySelectorAll('.card.flipped').length === cardArray.length) {
+                setTimeout(showWinPopup, 500);
+            }
+        } else {
+            unflipCards();
+        }
+    }
+
+    function disableCards() {
+        firstCard.removeEventListener('click', flipCard);
+        secondCard.removeEventListener('click', flipCard);
+        resetBoard();
+    }
+
+    function unflipCards() {
+        setTimeout(() => {
+            firstCard.classList.remove('flipped');
+            secondCard.classList.remove('flipped');
+            firstCard.textContent = '';
+            secondCard.textContent = '';
+            resetBoard();
+        }, 1000);
+    }
+
+    function resetBoard() {
+        [firstCard, secondCard, lockBoard] = [null, null, false];
+    }
+
+    function showWinPopup() {
+        clearInterval(timerInterval);
+        popup.style.display = 'block';
+        createParticles();
+    }
+
+    function createParticles() {
+        for (let i = 0; i < 100; i++) {
+            const particle = document.createElement('div');
+            particle.classList.add('particle');
+            document.body.appendChild(particle);
+            particle.style.left = Math.random() * window.innerWidth + 'px';
+            particle.style.top = Math.random() * window.innerHeight + 'px';
+            particle.style.opacity = Math.random();
+            particle.style.transition = 'transform 1s, opacity 1s';
+            particle.style.transform = `translateY(-100px) scale(${Math.random()})`;
+            setTimeout(() => {
+                particle.remove();
+            }, 1000);
+        }
+    }
+
+    playButton.addEventListener('click', () => {
+        initializeGame();
+        startTimer();
+    });
+
+    pauseButton.addEventListener('click', () => {
+        clearInterval(timerInterval);
+        lockBoard = true;
+    });
+
+    resetButton.addEventListener('click', () => {
+        clearInterval(timerInterval);
+        timer = 0;
+        cardsOpenedCount = 0;
+        timerDisplay.textContent = timer;
+        cardsOpenedDisplay.textContent = cardsOpenedCount;
+        gameBoard.innerHTML = '';
+        resetBoard();
+        popup.style.display = 'none';
+    });
+</script>
+
+</body>
+</html>
