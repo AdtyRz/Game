@@ -1,8 +1,8 @@
-<!DOCTYPE html>
+    <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Game Memory</title>
     <style>
         body {
@@ -11,21 +11,70 @@
             flex-direction: column;
             align-items: center;
             height: 100vh;
-            background-color: #590d7c;
+            background-color: #5c0a92;
             color: white;
+            position: relative;
+            overflow: hidden;
         }
         h1 {
             margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(184, 179, 179, 0.5);
+            position: relative;
+            z-index: 2;
+            font-size: 4em;
+            font-weight: bold;
+            background: linear-gradient(270deg, #ff6ec4, #7873f5, #4ade80, #facc15);
+            background-size: 800% 800%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: gradientAnimation 10s ease infinite;
+            text-align: center;
+            user-select: none;
+        }
+        @keyframes gradientAnimation {
+            0% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+        .whatsapp-button {
+            display: inline-flex;
+            align-items: center;
+            background-color: #25D366;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 16px;
+            transition: background-color 0.3s;
+            user-select: none;
+            position: relative;
+            z-index: 2;
+        }
+        .whatsapp-button:hover {
+            background-color: #0d8d3a;
+        }
+        .whatsapp-icon {
+            margin-right: 8px;
+            font-size: 20px;
         }
         .game-board {
             display: grid;
             grid-template-columns: repeat(4, 100px);
             gap: 10px;
+            position: relative;
+            z-index: 2;
         }
         .card {
             width: 100px;
             height: 100px;
-            background-color: #320b64;
+            background-color: #3d0a80;
             border: 2px solid #ffffff;
             border-radius: 10px;
             display: flex;
@@ -34,16 +83,29 @@
             font-size: 2em;
             cursor: pointer;
             transition: background-color 0.3s;
+            position: relative;
+            z-index: 2;
+            user-select: none;
+        }
+        .card .emoji {
+            display: none;
         }
         .card.flipped {
             background-color: #4CAF50;
             color: white;
         }
+        .card.flipped .emoji {
+            display: block;
+        }
         .info {
             margin-bottom: 20px;
+            position: relative;
+            z-index: 2;
         }
         .buttons {
             margin: 20px 0;
+            position: relative;
+            z-index: 2;
         }
         button {
             margin: 0 10px;
@@ -55,6 +117,21 @@
             color: white;
             cursor: pointer;
             transition: background-color 0.3s;
+            position: relative;
+            z-index: 2;
+        }
+        .animated-text {
+            font-weight: bold;
+            background-color: #3d0a80;
+            background: linear-gradient(270deg, #ff6ec4, #7873f5, #4ade80, #facc15);
+            background-size: 800% 800%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: gradientAnimation 10s ease infinite;
+            user-select: none;
+            border: 2px solid rgb(132, 0, 255);
+            border-radius: 3px;
+            padding: 8px 18px;
         }
         button:hover {
             background-color: #4f0574;
@@ -79,27 +156,89 @@
             border-radius: 50%;
             pointer-events: none;
         }
+        /* Container for animated animal emojis */
+        #emojiBackground {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            overflow: hidden;
+            z-index: 1;
+        }
+        .emoji {
+            position: absolute;
+            font-size: 24px;
+            animation-name: floatUp;
+            animation-timing-function: linear;
+            animation-iteration-count: infinite;
+            user-select: none;
+        }
+        @keyframes floatUp {
+            0% {
+                transform: translateY(100vh) rotate(0deg);
+                opacity: 0;
+            }
+            50% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-10vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+        /* Style untuk audio player yang disembunyikan */
+        #bgmAudio {
+            display: none;
+        }
+    </style>
+    <style>
+        .game-container {
+            background-color: rgba(0, 0, 0, 0.8);
+            border: 4px solid #ff6ec4;
+            border-radius: 20px;
+            padding: 30px 40px;
+            max-width: 520px;
+            margin: 40px auto;
+            box-shadow: 0 0 25px #ff6ec4;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
     </style>
 </head>
 <body>
 
-<h1>Game Memory</h1>
-<div class="info">
-    <div>Waktu : <span id="timer">0</span> detik</div>
-    <div>Kartu Dibuka : <span id="cardsOpened">0</span></div>
+<div id="emojiBackground"></div>
+
+<div class="game-container">
+    <h1>Game Memory</h1>
+    <div class="info">
+        <div>Waktu : <span id="timer">0</span> detik</div>
+        <div>Kartu Dibuka : <span id="cardsOpened">0</span></div>
+    </div>
+    <div class="game-board" id="gameBoard"></div>
+    <div class="buttons">
+        <button id="playButton" class="animated-text">Mainkan</button>
+        <button id="pauseButton" class="animated-text">Jeda</button>
+        <button id="resetButton" class="animated-text">Atur Ulang</button>
+    </div>
+    <a href="https://wa.me/6283120658571?text=ngebug ganih?,open request juga yaa :0" class="whatsapp-button" target="_blank" rel="noopener noreferrer">
+        <svg class="whatsapp-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="20" height="20" aria-hidden="true">
+            <path d="M20.52 3.48A11.88 11.88 0 0012 0C5.37 0 0 5.37 0 12a11.88 11.88 0 001.64 6.01L0 24l6.12-1.6A11.88 11.88 0 0012 24c6.63 0 12-5.37 12-12 0-3.2-1.25-6.21-3.48-8.52zm-8.52 17.4a8.4 8.4 0 01-4.5-1.3l-.32-.2-3.1.81.83-3.02-.21-.33a8.4 8.4 0 1110.8 4.04 8.3 8.3 0 01-3.7.99zm4.6-6.3c-.25-.12-1.48-.73-1.7-.81-.22-.08-.38-.12-.54.12s-.62.81-.76.98c-.14.17-.28.19-.53.07a6.3 6.3 0 01-1.85-1.14 7.04 7.04 0 01-1.3-1.6c-.14-.24 0-.37.1-.49.1-.1.22-.26.33-.39.11-.13.15-.22.22-.37.07-.12.03-.22-.02-.31-.05-.08-.54-1.3-.74-1.78-.2-.47-.4-.41-.54-.42-.14-.01-.3-.01-.46-.01a1.1 1.1 0 00-.8.37 3.4 3.4 0 00-1.3 3.1 6.3 6.3 0 005.75 5.75 3.4 3.4 0 003.1-1.3 1.1 1.1 0 00.37-.8c0-.15 0-.3-.01-.46-.01-.14-.05-.22-.42-.4z"/>
+        </svg>
+        Hubungi Pembuat
+    </a>
 </div>
-<div class="game-board" id="gameBoard"></div>
-<div class="buttons">
-    <button id="playButton">Play</button>
-    <button id="pauseButton">Pause</button>
-    <button id="resetButton">Reset</button>
-</div>
-<a href="https://wa.me/6283120658571?text=ngebug ganih?,open request juga yaa :0" class="tombol-whatsapp">
-    <i class="fab fa-whatsapp ikon"></i>Hubungi Pembuat :)</a>
 
 <div class="popup" id="popup">Selamat! Anda menang!</div>
 
+<!-- iframe YouTube untuk backsound, hanya memutar musik tanpa tampilan video -->
+<iframe id="youtubeBgm" src="https://www.youtube.com/embed/JOXUEZloyZE?enablejsapi=1&loop=1&playlist=JOXUEZloyZE&controls=0&mute=0&modestbranding=1&iv_load_policy=3&showinfo=0&rel=0" frameborder="0" allow="autoplay" allowfullscreen style="position:fixed; width:1px; height:1px; opacity:0; pointer-events:none; z-index:9999;"></iframe>
+
 <script>
+    // Daftar emoji hewan yang digunakan sebagai kartu
     const emojis = ['🐶', '🐱', '🐰', '🐻', '🐼', '🐸', '🦁', '🐨'];
     let cardArray = [];
     let firstCard = null;
@@ -116,7 +255,43 @@
     const pauseButton = document.getElementById('pauseButton');
     const resetButton = document.getElementById('resetButton');
     const popup = document.getElementById('popup');
+    const emojiBackground = document.getElementById('emojiBackground');
 
+    // Fungsi untuk membuat animasi emoji hewan di background
+    function createEmojiAnimation() {
+        const emojisList = ['🐶', '🐱', '🐰', '🐻', '🐼', '🐸', '🦁', '🐨'];
+        for (let i = 0; i < 20; i++) {
+            const emoji = document.createElement('div');
+            emoji.classList.add('emoji');
+            emoji.textContent = emojisList[Math.floor(Math.random() * emojisList.length)];
+            emoji.style.left = Math.random() * window.innerWidth + 'px';
+            emoji.style.animationDuration = (5 + Math.random() * 5) + 's';
+            emojiBackground.appendChild(emoji);
+
+            // Hapus emoji setelah animasi selesai
+            emoji.addEventListener('animationiteration', () => {
+                emoji.remove();
+            });
+        }
+    }
+
+    // Loop animasi emoji setiap 5 detik
+    let emojiAnimationInterval = null;
+
+    function startEmojiAnimationLoop() {
+        if (!emojiAnimationInterval) {
+            emojiAnimationInterval = setInterval(createEmojiAnimation, 5000);
+        }
+    }
+
+    function stopEmojiAnimationLoop() {
+        if (emojiAnimationInterval) {
+            clearInterval(emojiAnimationInterval);
+            emojiAnimationInterval = null;
+        }
+    }
+
+    // Inisialisasi permainan
     function initializeGame() {
         cardArray = [...emojis, ...emojis];
         cardArray.sort(() => 0.5 - Math.random());
@@ -127,16 +302,21 @@
         cardsOpenedDisplay.textContent = cardsOpenedCount;
         clearInterval(timerInterval);
         resetBoard();
-        
+
         cardArray.forEach((emoji) => {
             const card = document.createElement('div');
             card.classList.add('card');
             card.dataset.emoji = emoji;
+            const emojiSpan = document.createElement('span');
+            emojiSpan.classList.add('emoji');
+            emojiSpan.textContent = emoji;
+            card.appendChild(emojiSpan);
             card.addEventListener('click', flipCard);
             gameBoard.appendChild(card);
         });
     }
 
+    // Mulai timer permainan
     function startTimer() {
         timerInterval = setInterval(() => {
             timer++;
@@ -144,67 +324,68 @@
         }, 1000);
     }
 
+    // Fungsi untuk membalik kartu saat diklik
     function flipCard() {
-        if (lockBoard || this === firstCard) return;
+        if (lockBoard) return;
+        if (this === firstCard) return;
 
         this.classList.add('flipped');
-        this.textContent = this.dataset.emoji;
-        cardsOpenedCount++;
-        cardsOpenedDisplay.textContent = cardsOpenedCount;
 
         if (!firstCard) {
+            // Jika kartu pertama belum dipilih
             firstCard = this;
-            if (cardsOpenedCount === 1) {
-                startTimer();
-            }
             return;
         }
 
+        // Jika kartu kedua dipilih
         secondCard = this;
+        // Jangan kunci papan secara global, hanya kunci sampai kartu cocok atau tidak
         lockBoard = true;
 
-        checkForMatch();
-    }
+        // Cek apakah kedua kartu cocok
+        if (firstCard.dataset.emoji === secondCard.dataset.emoji) {
+            // Jika cocok, tambahkan hitungan kartu yang dibuka
+            cardsOpenedCount += 2;
+            cardsOpenedDisplay.textContent = cardsOpenedCount;
 
-    function checkForMatch() {
-        const isMatch = firstCard.dataset.emoji === secondCard.dataset.emoji;
+            // Reset pilihan kartu dan buka kunci papan
+            resetBoard();
 
-        if (isMatch) {
-            disableCards();
-            if (document.querySelectorAll('.card.flipped').length === cardArray.length) {
-                setTimeout(showWinPopup, 500);
+            // Cek apakah semua kartu sudah dibuka
+            if (cardsOpenedCount === cardArray.length) {
+                showWinPopup();
             }
         } else {
-            unflipCards();
+            // Jika tidak cocok, balikkan kembali kartu setelah delay
+            setTimeout(() => {
+                firstCard.classList.remove('flipped');
+                secondCard.classList.remove('flipped');
+                resetBoard();
+            }, 1000);
         }
     }
 
-    function disableCards() {
-        firstCard.removeEventListener('click', flipCard);
-        secondCard.removeEventListener('click', flipCard);
-        resetBoard();
-    }
-
-    function unflipCards() {
-        setTimeout(() => {
-            firstCard.classList.remove('flipped');
-            secondCard.classList.remove('flipped');
-            firstCard.textContent = '';
-            secondCard.textContent = '';
-            resetBoard();
-        }, 1000);
-    }
-
+    // Reset variabel pilihan kartu dan kunci papan
     function resetBoard() {
-        [firstCard, secondCard, lockBoard] = [null, null, false];
+        [firstCard, secondCard] = [null, null];
+        lockBoard = false;
     }
 
+    // Tampilkan popup kemenangan
     function showWinPopup() {
         clearInterval(timerInterval);
         popup.style.display = 'block';
         createParticles();
+        // Tambahkan animasi pada tombol saat menang
+        const animatedButtons = document.querySelectorAll('.animated-text');
+        animatedButtons.forEach(button => {
+            button.classList.add('animate');
+        });
+        // Mulai animasi emoji saat menang
+        startEmojiAnimationLoop();
     }
 
+    // Buat partikel animasi saat menang
     function createParticles() {
         for (let i = 0; i < 100; i++) {
             const particle = document.createElement('div');
@@ -221,16 +402,35 @@
         }
     }
 
+    // Event listener tombol mainkan
     playButton.addEventListener('click', () => {
+        console.log('Play button clicked');
         initializeGame();
-        startTimer();
+        popup.style.display = 'none';
+        lockBoard = true; // Kunci papan selama preview
+        // Tampilkan semua kartu selama 3 detik
+        const cards = document.querySelectorAll('.card');
+        cards.forEach(card => card.classList.add('flipped'));
+        setTimeout(() => {
+            cards.forEach(card => card.classList.remove('flipped'));
+            lockBoard = false; // Buka kunci papan setelah preview
+            startTimer();
+        }, 3000);
+        // Hentikan animasi emoji saat belum menang
+        stopEmojiAnimationLoop();
+        const player = document.getElementById('youtubeBgm').contentWindow;
+        player.postMessage('{"event":"command","func":"playVideo","args":""}', '*');
     });
 
+    // Event listener tombol jeda
     pauseButton.addEventListener('click', () => {
         clearInterval(timerInterval);
         lockBoard = true;
+        const player = document.getElementById('youtubeBgm').contentWindow;
+        player.postMessage('{"event":"command","func":"pauseVideo","args":""}', '*');
     });
 
+    // Event listener tombol atur ulang
     resetButton.addEventListener('click', () => {
         clearInterval(timerInterval);
         timer = 0;
@@ -240,6 +440,25 @@
         gameBoard.innerHTML = '';
         resetBoard();
         popup.style.display = 'none';
+        // Hapus animasi pada tombol saat reset
+        const animatedButtons = document.querySelectorAll('.animated-text');
+        animatedButtons.forEach(button => {
+            button.classList.remove('animate');
+        });
+        // Hentikan animasi emoji saat reset
+        stopEmojiAnimationLoop();
+        const player = document.getElementById('youtubeBgm').contentWindow;
+        player.postMessage('{"event":"command","func":"pauseVideo","args":""}', '*');
+        player.postMessage('{"event":"command","func":"seekTo","args":[0,true]}', '*');
+    });
+    // Assign sequential animation delays to buttons with class 'animated-text' for one-by-one looping animation
+    window.addEventListener('DOMContentLoaded', () => {
+        const animatedButtons = document.querySelectorAll('.animated-text');
+        const animationDuration = 10; // seconds, same as CSS animation duration
+        animatedButtons.forEach((button, index) => {
+            const delay = animationDuration * index;
+            button.style.animationDelay = delay + 's';
+        });
     });
 </script>
 
